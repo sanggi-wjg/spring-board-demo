@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://15.165.160.60:33061/DEMO
+    username: root
+    password: rootroot
+
+  redis:
+    host: 15.165.160.60
+    port: 6379
+
+  jpa:
+    hibernate:
+      ddl-auto: update # create, create-drop, update, validate
+      properties:
+        hibernate:
+          show_sql: true
+          format_sql: true
+          globally_quoted_identifiers: true
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+
+server:
+  port: 9000
