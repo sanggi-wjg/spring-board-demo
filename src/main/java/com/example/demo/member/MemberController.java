@@ -2,9 +2,11 @@ package com.example.demo.member;
 
 import com.example.demo.common.exception.AlreadyExist;
 import com.example.demo.common.exception.NotExist;
+import com.example.demo.common.redis.Account;
 import com.example.demo.common.redis.RedisMemberRepository;
-import com.example.demo.member.dto.LoginDTO;
-import com.example.demo.member.dto.MemberDTO;
+import com.example.demo.member.dto.JoinResponseDTO;
+import com.example.demo.member.dto.LoginRequestDTO;
+import com.example.demo.member.dto.JoinRequestDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -13,10 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 
-@Api(value = "멤버")
+@Api(value = "Member")
 @RestController
 public class MemberController {
 
@@ -32,40 +35,41 @@ public class MemberController {
     @ApiOperation(value = "회원가입")
     @ApiResponse(code = 201, message = "생성 성공", response = MemberEntity.class)
     @PostMapping("/signup")
-    public MemberEntity create(@RequestBody MemberDTO memberDTO) {
-        Optional<MemberEntity> byEmail = memberService.getByEmail(memberDTO.getEmail());
+    public JoinResponseDTO create(@Valid @RequestBody JoinRequestDTO joinRequestDTO) {
+        Optional<MemberEntity> byEmail = memberService.getByEmail(joinRequestDTO.getEmail());
         if (byEmail.isPresent()) {
             throw new AlreadyExist("email is exist");
         }
 
-        MemberEntity newMember = modelMapper.map(memberDTO, MemberEntity.class);
-        return memberService.createMember(newMember);
+        MemberEntity newMember = memberService.create(modelMapper.map(joinRequestDTO, MemberEntity.class));
+        return modelMapper.map(newMember, JoinResponseDTO.class);
     }
 
     @ApiOperation(value = "로그인")
     @PostMapping("/login")
-    public MemberEntity login(@RequestBody LoginDTO loginDTO) {
-        Optional<MemberEntity> memberByEmail = memberService.getByEmail(loginDTO.getEmail());
-
+    public Account login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+        Optional<MemberEntity> memberByEmail = memberService.getByEmail(loginRequestDTO.getEmail());
         if (memberByEmail.isEmpty()) {
             throw new NotExist("not exist email");
         }
-        Optional<MemberEntity> memberByAuth = memberService.checkMember(loginDTO);
+
+        Optional<MemberEntity> memberByAuth = memberService.getByAuth(loginRequestDTO);
         if (memberByAuth.isEmpty()) {
             throw new NotExist("invalid email or password");
         }
 
-        Optional<MemberEntity> redisMemberById = redisMemberRepository.findById(memberByAuth.get().getId());
-        if (redisMemberById.isEmpty()) {
-            return redisMemberRepository.save(memberByAuth.get());
+        Optional<Account> redisAccountById = redisMemberRepository.findById(memberByAuth.get().getId());
+        if (redisAccountById.isEmpty()) {
+            return redisMemberRepository.save(modelMapper.map(memberByAuth.get(), Account.class));
         } else {
-            return redisMemberById.get();
+            return redisAccountById.get();
         }
     }
 
     @ApiOperation(value = "로그아웃")
-    @GetMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody MemberDTO memberDTO) {
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@Valid @RequestBody Account account) {
+        redisMemberRepository.delete(account);
         return ResponseEntity.ok().build();
     }
 

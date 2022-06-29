@@ -1,14 +1,16 @@
 package com.example.demo.member;
 
+import com.example.demo.article.ArticleEntity;
 import lombok.*;
+import org.springframework.data.redis.core.RedisHash;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "members")
 @Entity
 public class MemberEntity {
@@ -26,6 +28,11 @@ public class MemberEntity {
 
     @Column(length = 250)
     private String password;
+
+    // relation
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<ArticleEntity> articles = new ArrayList<>();
+
 
     public void encryptPassword() {
         setPassword("-salt-" + password + "-salt-");

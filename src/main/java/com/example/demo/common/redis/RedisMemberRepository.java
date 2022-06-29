@@ -1,7 +1,8 @@
 package com.example.demo.common.redis;
 
-import com.example.demo.member.MemberEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-public interface RedisMemberRepository extends JpaRepository<MemberEntity, Long> {
+@Repository
+public interface RedisMemberRepository extends CrudRepository<Account, Long> {
 }

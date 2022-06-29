@@ -9,11 +9,8 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @ToString
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel(value = "로그인 정보")
-public class LoginDTO {
+@ApiModel(value = "로그인 요청")
+public class LoginRequestDTO {
 
     @ApiModelProperty(value = "이메일", required = true, position = 1, example = "user@mail.com")
     @NotBlank

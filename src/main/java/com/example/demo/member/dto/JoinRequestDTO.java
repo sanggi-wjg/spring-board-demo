@@ -1,5 +1,6 @@
 package com.example.demo.member.dto;
 
+import com.example.demo.member.MemberEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -9,11 +10,8 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @ToString
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel(value = "회원정보")
-public class MemberDTO {
+@ApiModel(value = "회원 가입 요청")
+public class JoinRequestDTO {
 
     @ApiModelProperty(value = "이름", required = true, position = 1, example = "GilDong")
     @NotBlank
@@ -27,7 +25,4 @@ public class MemberDTO {
     @NotBlank
     private String password;
 
-    public void encryptPassword() {
-        setPassword("-salt-" + password + "-salt-");
-    }
 }
